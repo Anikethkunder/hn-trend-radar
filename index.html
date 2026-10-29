@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HN Trend Radar</title>
+<style>
+:root{--bg:#f5f6fb;--p:#fff;--t:#12141d;--m:#6b7280;--l:#e4e6ef;--g:#16a34a;--gb:#dcfce7;--r:#dc2626;--rb:#fee2e2;--a:#d97706;--ab:#fef3c7;--b:#2563eb;--bb:#dbeafe;--gr:#eceef4;--ac:#6d5efc;--ac2:#22d3ee;--o:#ff6600}
+@media(prefers-color-scheme:dark){:root{--bg:#0c0e16;--p:#151926;--t:#eef0f7;--m:#8b93a7;--l:#262c3d;--g:#4ade80;--gb:#12301f;--r:#f87171;--rb:#3a1618;--a:#fbbf24;--ab:#3a2c0e;--b:#60a5fa;--bb:#14253f;--gr:#222839;--ac:#8f84ff;--ac2:#22d3ee}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:Inter,system-ui,"Segoe UI",sans-serif;line-height:1.45}
+.w{max-width:1040px;margin:0 auto;padding:22px 18px 60px}a{color:inherit}
+.hero{background:linear-gradient(135deg,#1e1b4b,#4338ca 55%,#0e7490);color:#fff;border-radius:22px;padding:34px 30px;margin-bottom:18px}
+.tag{display:inline-block;font-size:.7rem;letter-spacing:.12em;font-weight:700;background:#ffffff22;padding:5px 12px;border-radius:999px}
+.hero h1{font-size:2.1rem;line-height:1.15;margin:14px 0 10px;max-width:640px}.hero h1 span{color:#67e8f9}.hero p{max-width:620px;opacity:.88;margin:0 0 18px}
+.live{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:.83rem}.btn{text-decoration:none;background:#fff;color:#1e1b4b;padding:8px 14px;border-radius:10px;font-weight:700;font-size:.82rem}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.74rem;font-weight:700;white-space:nowrap}.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.success{color:var(--g);background:var(--gb)}.pill.failed{color:var(--r);background:var(--rb)}.pill.cancel,.pill.skipped{color:var(--m);background:var(--gr)}.pill.progress{color:var(--a);background:var(--ab)}.pill.queued{color:var(--b);background:var(--bb)}
+.pill.progress::before,.pill.queued::before{animation:k 1s infinite}@keyframes k{50%{opacity:.25}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:6px}.c,.pn{background:var(--p);border:1px solid var(--l);border-radius:14px;padding:15px}
+.lb{color:var(--m);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}.v{font-size:1.45rem;font-weight:800;margin-top:5px}.n{color:var(--m);font-size:.75rem}
+h2{font-size:1.1rem;margin:28px 0 4px}.sub{color:var(--m);font-size:.83rem;margin:0 0 12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:820px){.two{grid-template-columns:1fr}.hero h1{font-size:1.6rem}}
+.kw{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;padding:6px 0;font-size:.86rem}.kw b{overflow:hidden;text-overflow:ellipsis}
+.bar{height:10px;border-radius:6px;background:var(--gr);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:6px}
+.mo{font-size:.74rem;font-weight:700;min-width:62px;text-align:right}.up{color:var(--g)}.dn{color:var(--r)}.fl{color:var(--m)}
+.mv{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--l)}.mv:last-child{border:none}
+.gain{background:var(--gb);color:var(--g);font-weight:800;border-radius:8px;padding:4px 8px;font-size:.8rem;white-space:nowrap}.mv a{text-decoration:none;font-weight:600;font-size:.88rem}.mv small{display:block;color:var(--m);font-size:.74rem;margin-top:2px}
+.stack{display:flex;height:16px;border-radius:8px;overflow:hidden;margin:6px 0 12px}.lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;color:var(--m)}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.dm{display:flex;justify-content:space-between;padding:6px 0;font-size:.84rem;border-bottom:1px solid var(--l)}.dm:last-child{border:none}
+.bn{display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:14px;border:1px solid var(--l);margin-bottom:12px}.bn .d{width:13px;height:13px;border-radius:50%;flex:none}.bn b{display:block}.bn span{color:var(--m);font-size:.82rem}
+.bn.success{background:var(--gb)}.bn.success .d{background:var(--g)}.bn.failed{background:var(--rb)}.bn.failed .d{background:var(--r)}.bn.progress{background:var(--ab)}.bn.progress .d{background:var(--a);color:var(--a);animation:p 1.2s infinite}.bn.queued{background:var(--bb)}.bn.queued .d{background:var(--b);color:var(--b);animation:p 1.2s infinite}.bn.cancel{background:var(--gr)}.bn.cancel .d{background:var(--m)}
+@keyframes p{0%{box-shadow:0 0 0 0 currentColor}70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.flow{display:flex;overflow-x:auto;padding-bottom:4px}.st{flex:1;min-width:140px;border:1px solid var(--l);border-radius:12px;padding:11px;background:var(--p);position:relative}.st+.st{margin-left:24px}.st+.st::before{content:"\2192";position:absolute;left:-20px;top:50%;transform:translateY(-50%);color:var(--m)}
+.st .t{font-weight:700;text-transform:capitalize;display:flex;justify-content:space-between;align-items:center;gap:6px}.st .x{color:var(--m);font-size:.75rem;margin-top:6px;min-height:32px}.st.success{border-color:var(--g)}.st.failed{border-color:var(--r);background:var(--rb)}.st.skipped{opacity:.55;border-style:dashed}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.how .pn b{display:block;margin-bottom:4px}.how .pn p{margin:0;color:var(--m);font-size:.82rem}.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ac);color:#fff;font-size:.75rem;margin-right:8px}
+.tw{background:var(--p);border:1px solid var(--l);border-radius:14px;overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.84rem}th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--l);white-space:nowrap}th{color:var(--m);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}tr:last-child td{border:none}td a{color:var(--ac);font-weight:600;text-decoration:none}.m{color:var(--m)}
+details{margin-top:10px}summary{cursor:pointer;font-weight:600;font-size:.88rem;margin-bottom:8px}.e{padding:18px;text-align:center;color:var(--m)}footer{margin-top:26px;text-align:center;color:var(--m);font-size:.77rem}
+</style></head><body><div class="w">
+<div class="hero"><span class="tag">LIVE &middot; REBUILT HOURLY BY A SCHEDULED PIPELINE</span>
+<h1>What is the developer world talking about <span>right now?</span></h1>
+<p>A fully automated data pipeline reads Hacker News every hour, validates it against a data contract, stores the history, and turns it into trend intelligence. No servers. Everything below is produced by code running on a schedule.</p>
+<div class="live"><span id="lp" class="pill queued">Loading</span><span id="lu"></span><a class="btn" id="lk" target="_blank" rel="noopener">Source &amp; runs &rarr;</a></div></div>
+
+<div class="cards">
+<div class="c"><div class="lb">Stories tracked</div><div class="v" id="k1">&ndash;</div></div>
+<div class="c"><div class="lb">Snapshots</div><div class="v" id="k2">&ndash;</div><div class="n" id="k2n">&nbsp;</div></div>
+<div class="c"><div class="lb">Points on front page</div><div class="v" id="k3">&ndash;</div></div>
+<div class="c"><div class="lb">New since baseline</div><div class="v" id="k4">&ndash;</div><div class="n" id="k4n">&nbsp;</div></div>
+<div class="c"><div class="lb">Pipeline success</div><div class="v" id="k5">&ndash;</div><div class="n" id="k5n">&nbsp;</div></div>
+<div class="c"><div class="lb">Next refresh</div><div class="v" id="k6">&ndash;</div><div class="n" id="k6n">&nbsp;</div></div></div>
+
+<div class="two"><div><h2>Trending topics</h2><p class="sub" id="kwsub">Words appearing across the most front-page stories</p><div class="pn" id="kw"></div></div>
+<div><h2>Rising fast</h2><p class="sub" id="mvsub">Biggest point gains</p><div class="pn" id="mv"></div></div></div>
+<div class="two"><div><h2>Topic mix</h2><p class="sub">Share of front-page points by category</p><div class="pn" id="tp"></div></div>
+<div><h2>Top sources</h2><p class="sub">Sites with the most stories in 24 hours</p><div class="pn" id="dm"></div></div></div>
+
+<h2>Behind the scenes</h2><p class="sub">The pipeline that produced this page, live from GitHub Actions.</p>
+<div class="bn queued" id="bn"><div class="d"></div><div><b id="bt">Loading</b><span id="bs"></span></div></div>
+<div class="flow" id="flow"></div>
+<details><summary>Data quality checks <span id="dqn" class="m"></span></summary><div class="tw"><table><thead><tr><th>Check</th><th>Result</th><th>Detail</th></tr></thead><tbody id="dq"></tbody></table></div></details>
+
+<h2>How it works</h2><p class="sub">Five ideas every production data pipeline uses.</p>
+<div class="how">
+<div class="pn"><b><span class="num">1</span>Orchestration</b><p>A cron schedule in GitHub Actions starts a clean machine every hour. No server stays on between runs.</p></div>
+<div class="pn"><b><span class="num">2</span>Data contract</b><p>Each API response is checked for the fields we depend on. If the provider changes its schema, the run fails loudly instead of silently corrupting data.</p></div>
+<div class="pn"><b><span class="num">3</span>Quality gate</b><p>Range, null, duplicate and freshness checks run before loading. A failed check stops the load, so bad data never enters history.</p></div>
+<div class="pn"><b><span class="num">4</span>Idempotent history</b><p>Hourly snapshots are appended and pruned to 7 days. Re-running the same hour replaces it instead of duplicating it.</p></div>
+<div class="pn"><b><span class="num">5</span>SQL analytics layer</b><p>Gold tables are built with SQL: point gain per story, keyword momentum against 6 hours earlier, topic share and source rankings.</p></div></div>
+
+<h2>Run history</h2>
+<div class="tw"><table><thead><tr><th>Status</th><th>Trigger</th><th>Started</th><th>Duration</th><th>Proof</th></tr></thead><tbody id="runs"></tbody></table></div>
+<footer id="ft">Live run status comes from the GitHub Actions API; data files can lag up to 5 minutes (GitHub caching).</footer></div>
+<script>
+const REPO="";   // optional override, e.g. "anikethkunder/hn-trend-radar"
+const WF="pipeline.yml",BRANCH="main",COLORS=["#6d5efc","#22d3ee","#f59e0b","#10b981","#ef4444","#ec4899","#94a3b8"];
+const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let repo=REPO,cron=null,next=null;
+if(!repo&&location.hostname.endsWith(".github.io")){const n=location.pathname.split("/").filter(Boolean)[0];if(n)repo=location.hostname.split(".")[0]+"/"+n}
+const get=async u=>{const r=await fetch(u,{headers:{Accept:"application/vnd.github+json"}});if(!r.ok)throw r.status;return r.json()};
+const raw=p=>get(`https://raw.githubusercontent.com/${repo}/${BRANCH}/${p}?t=${Date.now()}`).catch(()=>null);
+const st=r=>r.status==="completed"?(r.conclusion==="success"?["success","Success"]:["cancelled","skipped"].includes(r.conclusion)?["cancel","Cancelled"]:["failed","Failed"]):r.status==="in_progress"?["progress","In progress"]:["queued","Queued"];
+const trig=e=>({schedule:"Scheduled",workflow_dispatch:"Manual",push:"Push"}[e]||e);
+const when=i=>new Date(i).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+const dur=s=>s<60?Math.max(0,Math.round(s))+"s":Math.floor(s/60)+"m "+Math.round(s%60)+"s";
+const ago=ms=>{const m=Math.round(ms/60000);return m<1?"just now":m<60?m+" min ago":m<2880?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"};
+function nextRun(c,now=new Date()){const p=(c||"").trim().split(/\s+/);if(p.length!==5||p[2]!=="*"||p[3]!=="*"||p[4]!=="*")return null;const[m,h]=p,t=new Date(now);t.setUTCSeconds(0,0);const s=m.match(/^\*\/(\d+)$/);
+ if(s&&h==="*"){t.setUTCMinutes((Math.floor(t.getUTCMinutes()/+s[1])+1)*+s[1]);return t}
+ if(/^\d+$/.test(m)&&h==="*"){t.setUTCMinutes(+m,0,0);if(t<=now)t.setUTCHours(t.getUTCHours()+1);return t}
+ if(/^\d+$/.test(m)&&/^\d+$/.test(h)){t.setUTCHours(+h,+m,0,0);if(t<=now)t.setUTCDate(t.getUTCDate()+1);return t}return null}
+function tick(){if(!next){$("k6").textContent="-";$("k6n").textContent=cron?"cron "+cron:"";return}const s=Math.round((next-new Date())/1000);
+ $("k6").textContent=s>0?(s>=3600?Math.floor(s/3600)+"h "+Math.floor(s%3600/60)+"m":Math.floor(s/60)+"m "+String(s%60).padStart(2,"0")+"s"):"due now";
+ $("k6n").textContent=next.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" local";if(s<-60)next=nextRun(cron)}
+const link=m=>m.url||("https://news.ycombinator.com/item?id="+m.id);
+
+function renderGold(g){
+ if(!g){["kw","mv","tp","dm"].forEach(i=>$(i).innerHTML='<div class="e">No data yet. Run the pipeline once from the Actions tab.</div>');return}
+ const s=g.stats;$("k1").textContent=s.stories.toLocaleString();$("k2").textContent=s.snapshots;$("k2n").textContent=s.history_hours+" h of history";
+ $("k3").textContent=s.points.toLocaleString();$("k4").textContent=s.new_entries??"-";$("k4n").textContent=g.baseline_hours?`vs ${g.baseline_hours} h ago`:"needs 2+ snapshots";
+ $("lu").textContent="Data updated "+ago(Date.now()-new Date(g.generated_at));
+ const mx=Math.max(...g.keywords.map(k=>k.n),1);
+ $("kw").innerHTML=g.keywords.map(k=>{const m=k.momentum,c=m==null?"fl":m>0?"up":m<0?"dn":"fl",t=m==null?"new":m>0?"\u25B2 "+m+"%":m<0?"\u25BC "+Math.abs(m)+"%":"\u2013";
+  return`<div class="kw"><b>${esc(k.kw)}</b><div class="bar" title="${k.n} stories, ${k.pts} points"><i style="width:${100*k.n/mx}%"></i></div><span class="mo ${c}">${t}</span></div>`}).join("");
+ $("kwsub").textContent=g.baseline_hours?`Stories mentioning each word \u00b7 momentum compares points vs ${g.baseline_hours} h ago`:"Stories mentioning each word \u00b7 momentum appears after a few runs";
+ $("mvsub").textContent=g.baseline_hours?`Point gain over the last ${g.baseline_hours} h`:"Gains appear after a second run";
+ $("mv").innerHTML=g.movers.map(m=>`<div class="mv"><span class="gain">+${m.gain}</span><div><a href="${esc(link(m))}" target="_blank" rel="noopener">${esc(m.title)}</a><small>#${m.rank} \u00b7 ${esc(m.domain)} \u00b7 ${m.points} pts \u00b7 ${m.comments} comments</small></div></div>`).join("");
+ const tot=g.topics.reduce((a,t)=>a+t.pts,0)||1;
+ $("tp").innerHTML=`<div class="stack">${g.topics.map((t,i)=>`<div title="${esc(t.topic)}" style="width:${100*t.pts/tot}%;background:${COLORS[i%7]}"></div>`).join("")}</div><div class="lg">${g.topics.map((t,i)=>`<span><i style="background:${COLORS[i%7]}"></i>${esc(t.topic)} ${Math.round(100*t.pts/tot)}%</span>`).join("")}</div>`;
+ $("dm").innerHTML=g.domains.length?g.domains.map(d=>`<div class="dm"><b>${esc(d.domain)}</b><span class="m">${d.n} stories \u00b7 top ${d.top} pts</span></div>`).join(""):'<div class="e">Building up history</div>'}
+
+function renderRun(rep){
+ if(!rep){$("flow").innerHTML='<div class="pn e" style="width:100%">No run report yet.</div>';return}
+ $("flow").innerHTML=rep.stages.map(s=>`<div class="st ${s.status}"><div class="t">${esc(s.name)}<span class="pill ${s.status}">${s.status}</span></div><div class="x">${s.status==="skipped"?"Not executed":esc(s.detail||"")}${s.rows_out!=null?`<br>${s.rows_out} rows out`:""}</div><div class="m" style="font-size:.73rem">${s.duration_s!=null?s.duration_s+"s":""}</div></div>`).join("");
+ const ok=(rep.dq||[]).filter(c=>c.passed).length;$("dqn").textContent=rep.dq.length?`\u00b7 ${ok}/${rep.dq.length} passed`:"";
+ $("dq").innerHTML=rep.dq.length?rep.dq.map(c=>`<tr><td>${esc(c.check)}</td><td><span class="pill ${c.passed?"success":"failed"}">${c.passed?"Pass":"Fail"}</span></td><td class="m">${esc(c.detail)}</td></tr>`).join(""):'<tr><td colspan="3" class="e">Quality stage did not run.</td></tr>'}
+
+async function refresh(){
+ if(!repo){$("bt").textContent="Repo not detected";$("bs").textContent="Open this page from your github.io URL, or set REPO in index.html.";return}
+ $("lk").href="https://github.com/"+repo+"/actions";
+ const[g,rep]=await Promise.all([raw("reports/gold.json"),raw("reports/latest_run.json")]);renderGold(g);renderRun(rep);
+ let runs=[];try{runs=(await get(`https://api.github.com/repos/${repo}/actions/workflows/${WF}/runs?per_page=20`)).workflow_runs}catch{}
+ if(runs.length){const[k,l]=st(runs[0]);$("lp").className="pill "+k;$("lp").textContent=l;
+  const T={success:["Pipeline healthy","The latest run completed and the data above is current."],failed:["Latest run failed",rep&&rep.error?rep.error:"Open the run for details. The data above is from the last good run."],progress:["Pipeline running now","This page updates automatically."],queued:["Run queued","Waiting for a GitHub runner."],cancel:["Latest run cancelled","No result was recorded."]}[k];
+  $("bn").className="bn "+k;$("bt").textContent=T[0];$("bs").textContent=T[1];
+  const done=runs.filter(r=>r.status==="completed"&&r.conclusion!=="cancelled"),ok=done.filter(r=>r.conclusion==="success").length;
+  if(done.length){$("k5").textContent=Math.round(100*ok/done.length)+"%";$("k5n").textContent=ok+" of "+done.length+" runs"}
+  $("runs").innerHTML=runs.map(r=>{const[kk,ll]=st(r),a=new Date(r.run_started_at||r.created_at),b=r.status==="completed"?new Date(r.updated_at):new Date();return`<tr><td><span class="pill ${kk}">${ll}</span></td><td class="m">${trig(r.event)}</td><td>${when(a)}</td><td>${dur((b-a)/1000)}</td><td><a href="${esc(r.html_url)}" target="_blank" rel="noopener">Run #${r.run_number}</a></td></tr>`}).join("");
+  if(!cron){const y=await fetch(`https://raw.githubusercontent.com/${repo}/${BRANCH}/${runs[0].path}`).then(r=>r.text()).catch(()=>""),m=y.match(/cron:\s*["']([^"']+)["']/);if(m){cron=m[1];next=nextRun(cron);tick()}}
+ }else{$("bn").className="bn cancel";$("bt").textContent="Live status unavailable";$("bs").textContent="The repo must be public. GitHub also limits anonymous API calls to 60 per hour.";$("lp").className="pill cancel";$("lp").textContent="Status unknown"}
+ setTimeout(refresh,runs.some(r=>r.status!=="completed")?15000:90000)}
+setInterval(tick,1000);refresh();
+</script></body></html>

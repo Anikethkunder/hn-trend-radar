@@ -1,0 +1,55 @@
+name: HN Trend Radar
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    inputs:
+      inject_fault:
+        description: "Demo: inject a fault"
+        type: choice
+        default: none
+        options: [none, extract, bad_data, schema_drift]
+      hold_seconds:
+        description: "Demo: keep the run IN PROGRESS for N seconds"
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hn-radar
+  cancel-in-progress: false
+
+jobs:
+  etl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Hold (demo only)
+        env:
+          HOLD: ${{ github.event.inputs.hold_seconds }}
+        run: sleep "${HOLD:-0}"
+
+      - name: Run pipeline
+        env:
+          INJECT_FAULT: ${{ github.event.inputs.inject_fault }}
+        run: python pipeline.py
+
+      - name: Save data and reports
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data reports
+          git commit -m "Pipeline run ${{ github.run_id }}" || exit 0
+          git pull --rebase
+          git push
