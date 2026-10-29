@@ -1,0 +1,89 @@
+{
+ "run_id": "40835699715",
+ "run_url": "https://github.com/Anikethkunder/hn-trend-radar/actions/runs/40835699715",
+ "trigger": "workflow_dispatch",
+ "fault_injected": "none",
+ "started_at": "2026-10-29T07:29:02Z",
+ "stages": [
+  {
+   "name": "extract",
+   "rows_out": 30,
+   "detail": "1 API call",
+   "status": "success",
+   "duration_s": 0.31
+  },
+  {
+   "name": "transform",
+   "rows_in": 30,
+   "rows_out": 30,
+   "detail": "keywords + topics + domains",
+   "status": "success",
+   "duration_s": 0.0
+  },
+  {
+   "name": "quality",
+   "status": "failed",
+   "detail": "3 quality check(s) failed: data_contract, not_null:points, not_null:comments",
+   "duration_s": 0.0
+  },
+  {
+   "name": "load",
+   "status": "skipped"
+  },
+  {
+   "name": "gold",
+   "status": "skipped"
+  }
+ ],
+ "dq": [
+  {
+   "check": "data_contract",
+   "passed": false,
+   "detail": "missing field(s): num_comments, points"
+  },
+  {
+   "check": "row_count",
+   "passed": true,
+   "detail": "30 stories (minimum 30)"
+  },
+  {
+   "check": "not_null:id",
+   "passed": true,
+   "detail": "0 null value(s)"
+  },
+  {
+   "check": "not_null:title",
+   "passed": true,
+   "detail": "0 null value(s)"
+  },
+  {
+   "check": "not_null:points",
+   "passed": false,
+   "detail": "1 null value(s)"
+  },
+  {
+   "check": "not_null:comments",
+   "passed": false,
+   "detail": "1 null value(s)"
+  },
+  {
+   "check": "range:points",
+   "passed": true,
+   "detail": "points within 0..10000"
+  },
+  {
+   "check": "unique_id",
+   "passed": true,
+   "detail": "story ids are unique"
+  },
+  {
+   "check": "freshness",
+   "passed": true,
+   "detail": "newest story is 3.7 h old (max 12)"
+  }
+ ],
+ "error": "quality: 3 quality check(s) failed: data_contract, not_null:points, not_null:comments",
+ "status": "failed",
+ "finished_at": "2026-10-29T07:29:02Z",
+ "duration_s": 0.31
+}
